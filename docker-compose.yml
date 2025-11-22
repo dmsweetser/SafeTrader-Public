@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  safe-trader:
+    build: .
+    container_name: safe-trader
+    restart: unless-stopped
+    environment:
+      - DB_PATH=/home/safetrader/safe_trader.db
+      - LOG_PATH=/home/safetrader
+      - CONFIGS_PATH=/home/safetrader/configs
+      - HTML_OUTPUT_DIR=/home/safetrader/output
+      - HTML_TEMPLATE_PATH=docker-dashboard.html
+      - LOG_LEVEL=20
+      - ALGORITHM_VERSION=v5
+      - COLLECT_HISTORICAL_DATA=0
+      - BOT_ERROR_PAUSE_ROUNDS=1
+      - MAX_CONCURRENT_BOTS=1
+      - CONVERSION_ID=${CONVERSION_ID}
+      - COINBASE_API_KEY=${COINBASE_API_KEY}
+      - COINBASE_API_SECRET=${COINBASE_API_SECRET}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - OLD_ENCRYPTION_KEY=
+      - FLASK_ENV=production
+    volumes:
+      - ${HOST_DATA_DIR}:/home/safetrader/
+    command: ["./docker-app.bin"]
