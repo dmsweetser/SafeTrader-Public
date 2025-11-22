@@ -1,0 +1,8 @@
+azure-storage-blob
+coinbase-rest-client
+authlib
+flask
+pyjwt
+requests
+rich
+cryptography

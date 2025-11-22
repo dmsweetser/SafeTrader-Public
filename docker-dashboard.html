@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title or "Safe Trader - Automated Cryptocurrency Trading" }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+
+:root {
+    --background-color: #f8f9fa00;
+    --text-color: #dff7df;
+    --card-background: #ffffff00;
+    --header-background: #ffffff00;
+    --sidebar-background: #ffffff00;
+    --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --table-header-background: #007bff;
+    --table-header-text: #ccdfcc;
+    --profit-color: rgb(73, 216, 73);
+    --loss-color: rgb(252, 58, 58);
+    --status-card-background: #ffffff00;
+    --status-card-border: 5px solid #007bff;
+    --earnings-card-background: #ffffff00;
+    --earnings-card-border: 5px solid #2e7d32;
+    --overlay-background: rgba(0, 0, 0, 0.822);
+    --spinner-border: 10px solid #f3f3f3;
+    --spinner-border-top: 10px solid #2e7d32;
+}
+
+/* Base styles */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body,
+html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-size: 12px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Layout */
+.dashboard {
+    background-color: var(--header-background);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 90px;
+    margin: 5px;
+}
+
+.sidebar {
+    width: 300px;
+    background-color: var(--sidebar-background);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.main-content {
+    flex: 1;
+    padding: 20px;
+    height: 100%;
+    overflow-y: auto;
+    width: 100%;
+    padding-top: 20px;
+    margin-left: 10px;
+}
+
+.main-content .container {
+    max-width: 100vw !important;
+}
+
+/* Navigation elements */
+.logo,
+.toggle-button,
+.export-button,
+.start-game,
+.unmanaged-balances-section,
+.getting-started,
+.what-is-safe-trader,
+.import-button {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+#export_csv {
+    margin-top: 5px;
+}
+
+.logo img,
+.logo-small img {
+    max-width: 100%;
+    max-height: 300px;
+}
+
+.logo-small img {
+    width: 100px;
+    max-height: 100px;
+    margin: auto;
+}
+
+/* Buttons */
+.toggle-button button,
+.export-button button,
+.unmanaged-balances-section button,
+.import-button button,
+.start-game button,
+.getting-started button,
+.what-is-safe-trader button {
+    font-weight: bold;
+    border-radius: 10px;
+    width: 100%;
+    height: 50px;
+}
+
+.toggle-button button {
+    font-size: 18px;
+}
+
+.export-button button,
+.unmanaged-balances-section button,
+.import-button button,
+.start-game button,
+.getting-started button,
+.what-is-safe-trader button {
+    font-size: 13px;
+}
+
+#userAreaSubscribe {
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.user-info.card {
+    margin-top: 10px;
+}
+
+/* Cards */
+.card {
+    margin-bottom: 8px;
+    box-shadow: var(--card-shadow);
+    border: none;
+    border-radius: 10px;
+    overflow: visible;
+    background-color: var(--card-background);
+}
+
+.card-header {
+    background-color: var(--table-header-background);
+    color: white;
+    padding: 15px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+}
+
+.card-header:first-child {
+    border-radius: 10px !important;
+}
+
+.card-body {
+    padding: 8px;
+    overflow-y: visible;
+}
+
+/* Table styles */
+.table,
+.dashboard {
+    color: var(--text-color);
+    font-weight: bold;
+}
+
+.table:first-child {
+    cursor: pointer !important;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.scrollable-table {
+    max-height: 300px;
+    overflow-y: auto;
+    display: block;
+}
+
+tbody tr {
+    cursor: default !important;
+}
+
+/* Status and earnings cards */
+.status-card,
+.earnings-card {
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-right-width: 1px;
+    padding: 8px;
+    margin-top: 10px;
+    border-radius: 5px;
+    text-align: left;
+}
+
+.status-card {
+    background-color: var(--status-card-background);
+    border: var(--status-card-border);
+}
+
+.earnings-card {
+    background-color: var(--earnings-card-background);
+    border: var(--earnings-card-border);
+}
+
+.earnings-card h5 {
+    font-weight: bolder;
+    font-size: 16px;
+    margin: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    width: 100%;
+}
+
+.earnings-card .card {
+    background: #054e0ae3;
+}
+
+.earnings-card p {
+    margin-bottom: 0px;
+}
+
+/* Form elements */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: var(--card-background);
+    color: var(--text-color);
+}
+
+/* Special forms */
+#settingsCollapse,
+#configForm,
+#createExperimentModal {
+    overflow-y: visible;
+}
+
+#settingsCollapse .card-body,
+#configForm {
+    padding-bottom: 20px;
+}
+
+#settingsCollapse .form-control {
+    background-color: transparent;
+}
+
+#configForm .form-control,
+#createExperimentModal .form-control {
+    height: 3.5rem;
+}
+
+#configForm .form-group {
+    margin-right: 10px;
+}
+
+#configSchema {
+    height: 15rem !important;
+}
+
+#accessKeysModal .modal-body {
+    height: 600px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+/* Color indicators */
+.profit {
+    color: var(--profit-color) !important;
+    font-weight: bold;
+}
+
+.loss {
+    color: var(--loss-color) !important;
+    font-weight: bold;
+}
+
+/* Balance and messages */
+.balance-message {
+    font-weight: bolder;
+    font-size: 14px;
+    padding: 20px;
+    margin: 20px;
+    line-height: 4rem;
+}
+
+/* Modal and overlay */
+.modal-content {
+    background-color: #054e0ae7;
+    color: var(--text-color);
+    text-align: left;
+}
+
+.modal-backdrop.show {
+    opacity: .7 !important;
+}
+
+#spinnerOverlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--overlay-background);
+    justify-content: center;
+    align-items: center;
+    z-index: 9998;
+}
+
+#spinner {
+    border: var(--spinner-border);
+    border-top: var(--spinner-border-top);
+    border-radius: 50%;
+    width: 250px;
+    height: 250px;
+    margin: auto;
+    margin-top: 250px;
+    animation: spin 1s linear infinite;
+    z-index: 9999;
+}
+
+#gameContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+#gameCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* Footer and copyright */
+.copyright-notice {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    text-align: center;
+    padding: 8px;
+    font-size: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    height: 50px;
+}
+
+.copyright-notice a {
+    color: #4da6ff;
+    text-decoration: none;
+}
+
+.copyright-notice a:hover {
+    text-decoration: underline;
+}
+
+.footer-disclaimer {
+    width: 100%;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 5vh;
+}
+
+/* Special content areas */
+.content-body {
+    width: 99vw;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    padding-bottom: 40px;
+}
+
+.hero-content {
+    padding: 1rem;
+    max-width: 800px;
+}
+
+.logo-animation {
+    animation: float 6s ease-in-out infinite;
+    max-width: 200px;
+    margin: 1rem auto;
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+    border-radius: 100px;
+    background-color: rgba(255, 255, 255, .3);
+}
+
+/* Buttons (landing and login) */
+.btn-landing {
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-weight: bold;
+    margin: 5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+    font-size: 14px;
+}
+
+.btn-landing:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(0, 1);
+    transform-origin: left;
+    transition: transform 0.5s ease;
+}
+
+.btn-landing:hover:before {
+    transform: scale(1, 1);
+}
+
+.btn-login {
+    background: #4CAF50;
+    border: 2px solid #4CAF50;
+}
+
+.btn-founder {
+    background: transparent;
+    border: 2px solid white;
+    color: #80c580;
+}
+
+/* Feature cards */
+.feature-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 1rem;
+    margin: 0.5rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: transform 0.3s ease;
+    cursor: default;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Navigation links */
+.nav-links {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+/* Particles animation */
+.particles {
+    background: linear-gradient(135deg, #000000, #032205, #000000);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow-y: hidden;
+}
+
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    animation: float 8s infinite ease-in-out;
+}
+
+/* Alerts and notifications */
+.alert-warning {
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+    color: #856404;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+#tradingActiveAlert {
+    margin: 5px;
+}
+
+#experimentNotification {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.download-qa-data {
+    margin-bottom: 5px;
+}
+
+/* Audit links */
+.audit-link {
+    color: #007bff;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+/* Code formatting */
+pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+/* Bot details */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.badge-success {
+    line-height: 2rem;
+}
+
+#earnings-prose {
+    font-size: 16px;
+    font-weight: 300;
+}
+
+#earnings-prose strong {
+    font-weight: 600;
+}
+
+#keyScope {
+    height: 3rem;
+}
+
+
+
+/* Buttons with uppercase text */
+.btn-primary,
+.btn-danger,
+.card-header,
+.btn-dark,
+.badge-success,
+.btn-warning,
+.btn-info {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:hover,
+.btn-danger:hover,
+.btn-warning:hover,
+.btn-info:hover {
+    opacity: 0.9;
+}
+
+/* Data cards */
+.data-card {
+    min-height: 150px;
+}
+
+.balance-table {
+    margin-bottom: 0 !important;
+}
+
+.transaction-row:hover {
+    background-color: #f1f1f1;
+}
+
+/* Modal width override */
+#comparisonModal {
+    --bs-modal-width: 90% !important;
+}
+
+/* Animations */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes gradientBG {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(-10px);
+    }
+
+    50% {
+        transform: translateY(10px);
+    }
+
+    100% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+
+    .header {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        padding: 10px;
+    }
+
+    .dashboard {
+        position: inherit;
+    }
+
+    .particles {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+    }
+
+    .main-content {
+        width: 100%;
+        padding: 10px;
+        margin-left: 0;
+    }
+
+    .main-content {
+        height: unset;
+        min-height: 100vh;
+        max-height: none;
+        padding: 20px 10px;
+        padding-bottom: 100px;
+    }
+
+    .btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .toggle-button button {
+        height: auto;
+        margin: 10px;
+        width: 100%;
+        line-height: 3rem;
+    }
+
+    .copyright-notice {
+        height: 50px;
+    }
+
+    .hero-content {
+        padding: 0.5rem;
+    }
+
+    .display-3 {
+        font-size: 2.5rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    .lead {
+        font-size: 1rem;
+    }
+
+    .feature-card {
+        margin: 0.5rem 0;
+    }
+
+    .btn-landing {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+
+    .footer-disclaimer {
+        height: 10vh;
+        position: relative;
+    }
+
+    .list-group-item {
+        background-color: #ffffff2e;
+    }
+
+    .card-body {
+        background-color: #054e0ae7;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    <main class="content-body">
+        <div class="dashboard row">
+            <div class="sidebar col-12 col-md-3 col-lg-2">
+                    <div class="card">
+                        <div class="unmanaged-balances-section">
+                            <button id="showUnmanagedBalancesBtn" class="btn btn-info btn-block">
+                                Show Unmanaged Balances
+                            </button>
+                        </div>
+                        <div class="what-is-safe-trader">
+                            <button id="whatIsSafeTraderBtn" class="btn btn-info btn-block">What Is Safe Trader?</button>
+                        </div>
+                        <div class="start-game" id="startGameSection" style="display: none;">
+                            <button id="startGame" class="btn btn-primary">Wow, This Is Boring</button>
+                        </div>
+                    </div>
+            </div>
+            <div class="main-content col-12 col-md-9 col-lg-10">
+                <div class="container mt-2">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header" data-toggle="collapse" data-target="#balancesCollapse">
+                                    Balances Overview <i class="fas fa-chevron-down float-right"></i>
+                                </div>
+                                <div id="balancesCollapse" class="collapse show">
+                                    <div class="card-body">
+                                        <div class="d-none d-md-block">
+                                            <div class="scrollable-table">
+                                                <table class="table table-striped" id="balancesTable">
+                                                    <thead>
+                                                        <tr>
+                                                            <th onclick="sortTable(0, 'balancesTable')">Currency</th>
+                                                            <th onclick="sortTable(1, 'balancesTable')">Managed Quantity</th>
+                                                            <th onclick="sortTable(2, 'balancesTable')">Price USDC</th>
+                                                            <th onclick="sortTable(3, 'balancesTable')">Managed USDC</th>
+                                                            <th onclick="sortTable(4, 'balancesTable')">Profit/Loss (Approx)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="balances">
+                                                        {% if balances and balances.keys() %}
+                                                            {% for currency, data in balances.items() %}
+                                                                {% if currency != 'USD' and data.quantity and data.quantity > 0 %}
+                                                                    <tr data-asset="{{ currency }}">
+                                                                        <td>{{ currency }}</td>
+                                                                        <td>{{ data.quantity|round(6, 'floor') }}</td>
+                                                                        <td>${{ data.current_price|round(2, 'floor') }}</td>
+                                                                        <td>${{ data.total_usdc|round(2, 'floor') }}{% if data.unmanaged_usdc and data.unmanaged_usdc > 0 %}<br/>(${{ data.unmanaged_usdc|round(2, 'floor') }} unmanaged){% endif %}</td>
+                                                                        <td class="{% if data.estimated_profit >= 0 %}profit-loss-positive{% else %}profit-loss-negative{% endif %}">
+                                                                            {% if data.current_price == 0 %}
+                                                                                Waiting For Price Data
+                                                                            {% else %}
+                                                                                ${{ data.estimated_profit|round(2, 'floor') }}
+                                                                            {% endif %}
+                                                                            &nbsp;<span id="icon-{{ currency }}"><i class="fas fa-info-circle" data-asset="{{ currency }}" onclick="loadAssetStat('{{ currency }}')"></i></span>
+                                                                        </td>
+                                                                    </tr>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            <tr>
+                                                                <td colspan="5" class="text-center balance-message">{{ balances.message }}</td>
+                                                            </tr>
+                                                        {% endif %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="d-md-none" id="balancesCards">
+                                            {% if balances and balances.keys() %}
+                                                {% for currency, data in balances.items() %}
+                                                    {% if currency != 'USD' and data.quantity and data.quantity > 0 %}
+                                                        <div class="card mb-3" data-asset="{{ currency }}">
+                                                            <div class="card-body">
+                                                                <h5>{{ currency }}</h5>
+                                                                <p>Quantity: {{ data.quantity|round(6, 'floor') }}</p>
+                                                                <p>Price: ${{ data.current_price|round(2, 'floor') }}</p>
+                                                                <p>Value: ${{ data.total_usdc|round(2, 'floor') }}{% if data.unmanaged_usdc and data.unmanaged_usdc > 0 %}<br/>(${{ data.unmanaged_usdc|round(2, 'floor') }} unmanaged){% endif %}</p>
+                                                                <p class="{% if data.estimated_profit >= 0 %}profit-loss-positive{% else %}profit-loss-negative{% endif %}">
+                                                                    {% if data.current_price == 0 %}
+                                                                        Waiting For Price Data
+                                                                    {% else %}
+                                                                        ${{ data.estimated_profit|round(2, 'floor') }}
+                                                                    {% endif %}
+                                                                    &nbsp;<i class="fas fa-info-circle" data-asset="{{ currency }}" onclick="loadAssetStat('{{ currency }}')"></i>
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% else %}
+                                                <div class="text-center">{{ balances.message }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header" data-toggle="collapse" data-target="#transactionsCollapse">
+                                    Recent Transactions <i class="fas fa-chevron-down float-right"></i>
+                                </div>
+                                <div id="transactionsCollapse" class="collapse show">
+                                    <div class="card-body">
+                                        <div class="d-none d-md-block">
+                                            <div class="scrollable-table">
+                                                <table class="table table-striped" id="recentPurchasesTable">
+                                                    <thead>
+                                                        <tr>
+                                                            <th onclick="sortTable(1, 'recentPurchasesTable')">Asset</th>
+                                                            <th onclick="sortTable(2, 'recentPurchasesTable')">Type</th>
+                                                            <th onclick="sortTable(3, 'recentPurchasesTable')">Amount</th>
+                                                            <th onclick="sortTable(4, 'recentPurchasesTable')">Total (USDC)</th>
+                                                            <th onclick="sortTable(5, 'recentPurchasesTable')">Profit (Approx)</th>
+                                                            <th onclick="sortTable(6, 'recentPurchasesTable')">Audit</th>
+                                                            <th onclick="sortTable(7, 'recentPurchasesTable')">Time</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="recent_purchases">
+                                                        {% if recent_purchases and recent_purchases|length > 0 %}
+                                                            {% for p in recent_purchases %}
+                                                                <tr>
+                                                                    <td>{{ p.asset }}</td>
+                                                                    <td>{{ p.type }}</td>
+                                                                    <td>{{ p.amount|round(2, 'floor') }}</td>
+                                                                    <td>${{ (p.amount|float * p.price|float)|round(2, 'floor') }}</td>
+                                                                    <td>$
+                                                                        {% if p.type == 'sell' %}
+                                                                            {% if p.profit %}
+                                                                                {{ p.profit|round(2, 'floor') }}
+                                                                            {% else %}
+                                                                                -
+                                                                            {% endif %}
+                                                                        {% else %}
+                                                                            -
+                                                                        {% endif %}
+                                                                    </td>
+                                                                    <td>
+                                                                        {% if p.audit %}
+                                                                            <span class="audit-link" onclick="showAudit('{{ p.audit }}')">View Audit</span>
+                                                                        {% else %}
+                                                                            -
+                                                                        {% endif %}
+                                                                    </td>
+                                                                    <td>{{ p.timestamp }}</td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            <tr>
+                                                                <td colspan="7" class="text-center">No recent transactions.</td>
+                                                            </tr>
+                                                        {% endif %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="d-md-none" id="transactionsCards">
+                                            {% if recent_purchases and recent_purchases|length > 0 %}
+                                                {% for p in recent_purchases %}
+                                                    <div class="card mb-3">
+                                                        <div class="card-body">
+                                                            <div>{{ p.asset }} - {{ p.type }}</div>
+                                                            <ul class="list-group list-group-flush">
+                                                                <li class="list-group-item">Amount: {{ p.amount|round(2, 'floor') }}</li>
+                                                                <li class="list-group-item">Total: ${{ (p.amount|float * p.price|float)|round(2, 'floor') }}</li>
+                                                                <li class="list-group-item">
+                                                                    Profit (Approx): ${% if p.type == 'sell' %}{% if p.profit %}{{ p.profit|round(2, 'floor') }}{% else %}-{% endif %}{% else %}-{% endif %}
+                                                                </li>
+                                                                <li class="list-group-item">
+                                                                    {% if p.audit %}
+                                                                        <span class="audit-link" onclick="showAudit('{{ p.audit }}')">View Audit</span>
+                                                                    {% else %}
+                                                                        -
+                                                                    {% endif %}
+                                                                </li>
+                                                                <li class="list-group-item">{{ p.timestamp }}</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            {% else %}
+                                                <div class="text-center">No recent transactions.</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="earnings-card">
+                        <h5>Portfolio Performance</h5>
+                        <div class="card">
+                            <div class="card-body">
+                                <p id="earnings-prose">
+                                    Your current total portfolio balance is <strong id="current_portfolio_value">${{ earnings.current_portfolio_value|round(2, 'floor') }}</strong>.
+                                    Today, you have earned <strong id="daily_profit">${{ earnings.daily_profit|round(2, 'floor') }}</strong> off of an invested amount of
+                                    <strong id="daily_invested">${{ earnings.daily_invested|round(2, 'floor') }}</strong>,
+                                    with a daily rate of return of <strong id="daily_rate">{{ earnings.daily_rate_of_return * 100|round(2, 'floor') }}%</strong>.
+                                    <br><br>
+
+                                    This week, you have earned <strong id="weekly_profit">${{ earnings.weekly_profit|round(2, 'floor') }}</strong> off an invested amount
+                                    of <strong id="weekly_invested">${{ earnings.weekly_invested|round(2, 'floor') }}</strong>,
+                                    with a rate of return of <strong id="weekly_rate">{{ earnings.weekly_rate_of_return * 100|round(2, 'floor') }}%</strong> (<strong id="weekly_annualized">{{ earnings.weekly_annualized_ror|round(2, 'floor') }}%</strong> annualized).
+                                    <br><br>
+
+                                    This year, you have earned <strong id="yearly_profit">${{ earnings.yearly_profit|round(2, 'floor') }}</strong> off an invested amount
+                                    of <strong id="yearly_invested">${{ earnings.yearly_invested|round(2, 'floor') }}</strong>
+                                    over a period of <strong class="yearly_total_days">{{ earnings.yearly_total_days }}</strong> days,
+                                    with a rate of return of <strong id="yearly_rate">{{ earnings.yearly_rate_of_return * 100|round(2, 'floor') }}%</strong> (<strong id="yearly_annualized">{{ earnings.yearly_annualized_ror|round(2, 'floor') }}%</strong> annualized).
+                                    <br><br>
+
+                                    <strong>Important Note:</strong>
+                                    Annualized returns are calculated using the holding period return (HPR) formula:
+                                    <code>(1 + HPR)^(365 / days) - 1</code>.
+                                    These values are based on matched trades within each time window and should not be interpreted as sustainable or guaranteed returns.
+                                    Short-term performance is not indicative of future results.
+
+                                    <br><br>
+
+                                    If you were to sell all your current allocations at their cost basis, your total portfolio
+                                    balance would be approximately <strong><span id="theoretical_resolved_value">${{ earnings.theoretical_resolved_value|round(2, 'floor') }}</span></strong>.
+                                    <br><br>
+
+                                    For comparison:
+                                    <ul>
+                                        <li>If your entire portfolio had been held in a savings account with a 4% APY (compounded daily), it would have earned approximately <strong id="savings_earnings">${{ earnings.savings_earnings|round(2, 'floor') }}</strong>
+                                            over the same <strong class="yearly_total_days">{{ earnings.yearly_total_days }}</strong>-day period.</li>
+                                        <li>If your entire portfolio had been invested in an index fund with an average annual return of 8% (compounded daily), it might have earned approximately <strong id="index_fund_earnings">${{ earnings.index_fund_earnings|round(2, 'floor') }}</strong> over the same <strong class="yearly_total_days">{{ earnings.yearly_total_days }}</strong>-day period.</li>
+                                    </ul>
+
+                                    <br><strong>⚠️ PAST RESULTS ARE NOT INDICATIVE OF FUTURE PERFORMANCE. HIGH RETURNS IN SHORT PERIODS DO NOT GUARANTEE SUSTAINABLE GROWTH.</strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modals -->
+        <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-sm modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalLabel">Notification</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="modalBody"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Show Unmanaged Balances -->
+        <div class="modal fade" id="unmanagedBalancesModal" tabindex="-1" aria-labelledby="unmanagedBalancesModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-info text-white">
+                        <h5 class="modal-title" id="unmanagedBalancesModalLabel">Unmanaged Balances</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-info">
+                            <strong>What are unmanaged balances?</strong><br>
+                            These are assets that you hold in your Coinbase account but are not actively managed by Safe Trader.
+                            This includes:
+                            <ul>
+                                <li>Coins you manually bought rather than being bought by Safe Trader.</li>
+                                <li>Coins that are listed on Coinbase but not tradeable (e.g., some meme coins).</li>
+                                <li>Coins you've excluded from trading or that Safe Trader doesn't currently support.</li>
+                            </ul>
+                            <br>
+                            Safe Trader only manages assets it can trade and monitor. These unmanaged balances are not included
+                            in automated trading decisions, but are still visible here for transparency.
+                        </div>
+
+                        <div class="scrollable-table">
+                            <table class="table table-striped" id="unmanagedBalancesTable">
+                                <thead>
+                                    <tr>
+                                        <th onclick="sortTable(0, 'unmanagedBalancesTable')">Asset</th>
+                                        <th onclick="sortTable(1, 'unmanagedBalancesTable')">Quantity</th>
+                                        <th onclick="sortTable(2, 'unmanagedBalancesTable')">Price (USDC)</th>
+                                        <th onclick="sortTable(3, 'unmanagedBalancesTable')">Total Value (USDC)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="unmanagedBalancesBody">
+                                    {% if unmanaged_balances and unmanaged_balances.keys() %}
+                                        {% for currency, data in unmanaged_balances.items() %}
+                                            {% if currency != 'USD' and data.total_usdc and data.total_usdc > 0 %}
+                                                <tr>
+                                                    <td>{{ currency }}</td>
+                                                    <td>{{ data.quantity|round(6, 'floor') }}</td>
+                                                    <td>${{ data.current_price|round(2, 'floor') }}</td>
+                                                    <td>${{ data.total_usdc|round(2, 'floor') }}</td>
+                                                </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="4" class="text-center">No unmanaged balances found.</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal fade" id="excludedAssetsModal" tabindex="-1" aria-labelledby="excludedAssetsModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="excludedAssetsModalLabel">Excluded Assets</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-info">
+                            <medium>
+                                <strong>Note:</strong> Your account is pre-populated with a list of excluded assets that
+                                present prices in Coinbase but are not tradeable there. Over time, as your trading bot
+                                detects other assets that list prices but are not tradeable, they will be automatically
+                                added to this list. You can also add your own coins to this list if you find them to be
+                                too unpredictable or undesirable for other reasons.
+                            </medium>
+                        </div>
+                        <div class="form-group">
+                            <label for="excludedAssets">Assets to Exclude</label>
+                            <textarea class="form-control" id="excludedAssets" rows="10">{{ config.EXCLUDED_ASSETS|default('', true) }}</textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="auditModal" tabindex="-1" aria-labelledby="auditModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="auditModalLabel">Trade Audit</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="auditModalBody"></div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="assetStatsModal" tabindex="-1" aria-labelledby="assetStatsModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="assetStatsModalLabel">Asset Statistics</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="assetStatsContent"></div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal fade" id="whatIsSafeTraderModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">What Is Safe Trader?</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Safe Trader is an advanced, automated trading bot designed to manage your cryptocurrency investments on Coinbase.
+                            It uses a proprietary algorithm to execute buy and sell orders based on real-time market conditions,
+                            historical price trends, and algorithm-defined risk parameters.
+                        </p>
+                        <p><strong>Key Features:</strong></p>
+                        <ul>
+                            <li><strong>Automated Trading 24/7:</strong> Continuously monitors and trades assets, even when you're offline.</li>
+                            <li><strong>Dynamic Portfolio Diversification:</strong> Automatically balances your portfolio by evaluating and trading a wide range of assets, while respecting your excluded assets list.</li>
+                            <li><strong>Real-Time Market Analysis:</strong> Uses historical averages and current price data to make informed trading decisions.</li>
+                            <li><strong>Profit Optimization:</strong> Sells assets that are consistently estimated to be profitable, and buys assets when their price dips below a system-defined threshold.</li>
+                            <li><strong>Precision Trading:</strong> Adjusts order precision dynamically to maximize success rates and minimize errors.</li>
+                            <li><strong>Transparent Reporting:</strong> Provides detailed transaction history, profit/loss estimates, and real-time balance updates.</li>
+                        </ul>
+                        <p>
+                            Safe Trader is designed to maximize profits while minimizing risks, using a disciplined and data-driven approach.
+                        </p>
+                        <p><strong>Note:</strong> Always review the disclaimers and understand the risks before enabling automated trading.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="gameContainer" style="display:none">
+            <canvas id="gameCanvas"></canvas>
+        </div>
+    </main>
+
+    <script>
+        // Create animated particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 20;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+
+                // Random properties
+                const size = Math.random() * 15 + 5;
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const animationDelay = Math.random() * 5;
+                const opacity = Math.random() * 0.5 + 0.1;
+
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${posX}%`;
+                particle.style.top = `${posY}%`;
+                particle.style.opacity = opacity;
+                particle.style.animationDelay = `${animationDelay}s`;
+
+                container.appendChild(particle);
+            }
+        }
+
+        // Helper function to safely format numbers
+        function safeToFixed(value, decimals) {
+            if (value == null) return (0).toFixed(decimals);
+            return parseFloat(value).toFixed(decimals);
+        }
+
+        // Helper function to show feedback modal
+        function showModal(message) {
+            $('#modalBody').text(message);
+            $('#feedbackModal').modal('show');
+            setTimeout(() => $('#feedbackModal').modal('hide'), 3000);
+        }
+
+        // Helper function to show audit modal
+        function showAudit(audit) {
+            $('#auditModalBody').text(audit);
+            $('#auditModal').modal('show');
+            setTimeout(() => $('#auditModal').modal('hide'), 30000);
+        }
+
+        // Helper function to load asset statistics
+        function loadAssetStat(asset) {
+            const icon = $(`#icon-${asset}`);
+            icon.html('<i class="fas fa-spinner fa-spin"></i>');
+            // Simulate async loading
+            setTimeout(() => {
+                const stats = {
+                    current_hold_duration_minutes: Math.floor(Math.random() * 1440),
+                    max_estimated_profit: Math.random() * 50,
+                    min_estimated_profit: Math.random() * 20,
+                    total_profit: Math.random() * 100,
+                    avg_profit_per_tx: Math.random() * 5
+                };
+                const statsContent = `
+                <p><strong>Statistics for asset:</strong> ${asset} </p>
+                <p><strong>Current hold duration:</strong> ${safeToFixed(stats.current_hold_duration_minutes, 0) || '0'} minutes</p>
+                <p><strong>Highest estimated profit during hold:</strong> $${safeToFixed(stats.max_estimated_profit, 2) || '0.00'}</p>
+                <p><strong>Lowest estimated profit during hold:</strong> $${safeToFixed(stats.min_estimated_profit, 2) || '0.00'}</p>
+                <p><strong>Total estimated profit (all time):</strong> $${safeToFixed(stats.total_profit, 2) || '0.00'}</p>
+                <p><strong>Average profit per transaction:</strong> $${safeToFixed(stats.avg_profit_per_tx, 2) || '0.00'}</p>
+            `;
+                $('#assetStatsContent').html(statsContent);
+                $('#assetStatsModal').modal('show');
+                icon.html('<i class="fas fa-info-circle" data-asset="' + asset + '" onclick="loadAssetStat(\'' + asset + '\')"></i>');
+            }, 500);
+        }
+
+        // Sort table by column
+        function sortTable(columnIndex, tableId) {
+            const table = document.getElementById(tableId);
+            const header = table.querySelector('thead tr');
+            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            rows.sort((a, b) => {
+                const aValue = a.cells[columnIndex].textContent;
+                const bValue = b.cells[columnIndex].textContent;
+                const aNumeric = parseFloat(aValue.replace(/[^0-9.-]/g, ''));
+                const bNumeric = parseFloat(bValue.replace(/[^0-9.-]/g, ''));
+                if (!isNaN(aNumeric) && !isNaN(bNumeric)) return aNumeric - bNumeric;
+                return aValue.localeCompare(bValue);
+            });
+            if (header.cells[columnIndex].classList.contains('sorted-asc')) {
+                rows.reverse();
+                header.cells[columnIndex].classList.replace('sorted-asc', 'sorted-desc');
+            } else if (header.cells[columnIndex].classList.contains('sorted-desc')) {
+                header.cells[columnIndex].classList.remove('sorted-desc');
+            } else {
+                header.cells[columnIndex].classList.add('sorted-asc');
+            }
+            Array.from(header.cells).forEach((cell, index) => {
+                if (index !== columnIndex) cell.classList.remove('sorted-asc', 'sorted-desc');
+            });
+            const tbody = table.querySelector('tbody');
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        // --- Event Handlers ---
+        $(document).ready(function () {
+            // Initialize particles
+            createParticles();
+
+            // What Is Safe Trader button handler
+            $('#whatIsSafeTraderBtn').click(function () { $('#whatIsSafeTraderModal').modal('show'); });
+
+            // Show unmanaged balances button handler
+            $('#showUnmanagedBalancesBtn').click(function () {
+                const modal = $('#unmanagedBalancesModal');
+                modal.modal('show');
+            });
+
+            // Game start handler
+            $('#startGame').click(function () {
+                $('#gameContainer').show();
+                // Initialize game canvas
+                const canvas = document.getElementById('gameCanvas');
+                const ctx = canvas.getContext('2d');
+                let particles = [];
+                let frameCount = 0;
+
+                // Create initial particles
+                for (let i = 0; i < 100; i++) {
+                    particles.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        vx: (Math.random() - 0.5) * 2,
+                        vy: (Math.random() - 0.5) * 2,
+                        size: Math.random() * 3 + 1,
+                        color: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.8)`
+                    });
+                }
+
+                function animate() {
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    particles.forEach(particle => {
+                        particle.x += particle.vx;
+                        particle.y += particle.vy;
+
+                        // Bounce off walls
+                        if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
+                        if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
+
+                        // Draw particle
+                        ctx.fillStyle = particle.color;
+                        ctx.beginPath();
+                        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+
+                    frameCount++;
+                    requestAnimationFrame(animate);
+                }
+
+                animate();
+            });
+
+            // Setup modals
+            $('.modal').on('shown.bs.modal', function () {
+                // Focus on first input if present
+                const firstInput = $(this).find('input:first');
+                if (firstInput.length) firstInput.focus();
+            });
+        });
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function () {
+            // Ensure all modals are closed initially
+            $('.modal').each(function () {
+                if ($(this).data('bs.modal')) {
+                    $(this).data('bs.modal')._element.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+    <div class="footer">
+        <div class="copyright-notice">
+            &copy; Copyright 2025 Daniel Sweetser. <a href="mailto:{{ FOUNDER_EMAIL }}?subject=SafeTrader%20Help">Contact Me</a>
+        </div>
+    </div>
+</body>
+</html>
