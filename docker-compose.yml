@@ -3,7 +3,7 @@ version: '3.8'
 services:
   safe-trader:
     build: .
-    container_name: safe-trader
+    container_name: safe-trader-${INSTANCE_NAME}
     restart: unless-stopped
     environment:
       - DB_PATH=/home/safetrader/safe_trader.db
