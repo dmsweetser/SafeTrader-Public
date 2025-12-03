@@ -44,7 +44,8 @@ Access: `http://your-server-ip:9000`
   - CONVERSION_ID=
   - COINBASE_API_KEY=your_real_api_key
   - COINBASE_API_SECRET=your_real_api_secret
-  - ENCRYPTION_KEY=an_encryption_key_to_use_for_your_api_credentials
+  - ENCRYPTION_KEY="an_encryption_key_to_use_for_your_api_credentials" **(MUST BE IN DOUBLE QUOTES)**
+  - DELAY_BETWEEN_ROUNDS=10 **(number in seconds)**
 8. Click **Deploy**
 
 > ✅ Portainer will:
