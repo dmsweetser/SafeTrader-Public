@@ -22,6 +22,7 @@ services:
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}
       - OLD_ENCRYPTION_KEY=
       - FLASK_ENV=production
+      - DELAY_BETWEEN_ROUNDS=${DELAY_BETWEEN_ROUNDS}
     volumes:
       - ${HOST_DATA_DIR}:/home/safetrader/
     command: ["./docker-app.bin"]
