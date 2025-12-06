@@ -41,13 +41,13 @@ Access: `http://your-server-ip:9000`
 6. **Path in repository**: (Leave blank — use root)
 7. **Environment variables**:
   
-  HOST_DATA_DIR=/home/your_user/safetrader
-  CONVERSION_ID=
-  COINBASE_API_KEY=your_real_api_key
-  COINBASE_API_SECRET="your_real_api_secret" **(MUST BE IN DOUBLE QUOTES)**
-  ENCRYPTION_KEY=an_encryption_key_to_use_for_your_api_credentials
-  DELAY_BETWEEN_ROUNDS=10 **(number in seconds)**
-  INSTANCE_NAME=your_container_name_suffix
+  - HOST_DATA_DIR=/home/your_user/safetrader
+  - CONVERSION_ID=
+  - COINBASE_API_KEY=your_real_api_key
+  - COINBASE_API_SECRET="your_real_api_secret" **(MUST BE IN DOUBLE QUOTES)**
+  - ENCRYPTION_KEY=an_encryption_key_to_use_for_your_api_credentials
+  - DELAY_BETWEEN_ROUNDS=10 **(number in seconds)**
+  - INSTANCE_NAME=your_container_name_suffix
 
 8. Click **Deploy**
 
