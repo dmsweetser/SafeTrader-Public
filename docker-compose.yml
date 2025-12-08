@@ -16,9 +16,14 @@ services:
       - COLLECT_HISTORICAL_DATA=0
       - BOT_ERROR_PAUSE_ROUNDS=1
       - MAX_CONCURRENT_BOTS=1
+      - CONVERSION_ID=${CONVERSION_ID}
+      - COINBASE_API_KEY=${COINBASE_API_KEY}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
       - OLD_ENCRYPTION_KEY=
       - FLASK_ENV=production
+      - DELAY_BETWEEN_ROUNDS=${DELAY_BETWEEN_ROUNDS}
       - LOCAL_DEVELOPMENT=1
+      - COINBASE_API_SECRET=${COINBASE_API_SECRET}
     volumes:
       - ${HOST_DATA_DIR}:/home/safetrader/
     command: ["./docker-app.bin"]
